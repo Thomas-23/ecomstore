@@ -1,4 +1,7 @@
-﻿
+﻿from cart.forms import ProductAddToCartForm
+from cart.cart import add_to_cart
+from django.core import urlresolvers
+from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, View, ListView
 
 #from django.http import HttpResponse
@@ -76,7 +79,27 @@ class ShowProductView(DetailView):
 
 
 def show_product(request, slug, template_name="catalog/product.html"):
-	p = get_object_or_404(Product, slug=slug)
-	content = {"categories":p.categories.filter(is_active=True),"page_title":p.name,"meta_keywords":p.meta_keywords,"meta_description":p.meta_description,'p':p }
-	return render(request,template_name,content)
+    p = get_object_or_404(Product, slug=slug)
+    if request.method == 'POST':
+        # add to cart...create the bound form
+        post_data = request.POST.copy()
+        form = ProductAddToCartForm(request, post_data)
+        #check if posted data is valid
+        if form.is_valid():
+            #add to cart and redirect to cart page
+            add_to_cart(request)
+             # if test cookie worked, get rid of it
+            if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+            url = urlresolvers.reverse('show_cart')
+            return HttpResponseRedirect(url)
+    else:
+        # it’s a GET, create the unbound form. Note request as a kwarg
+        form = ProductAddToCartForm(request=request, label_suffix=':')
+    # assign the hidden input the product slug
+    form.fields['slug'].widget.attrs['value'] = slug
+    # set the test cookie on our first GET request
+    request.session.set_test_cookie()
+    content = {"categories":p.categories.filter(is_active=True),"page_title":p.name,"meta_keywords":p.meta_keywords,"meta_description":p.meta_description,'p':p, 'form':form }
+    return render(request,template_name,content)
 

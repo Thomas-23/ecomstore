@@ -1,5 +1,14 @@
 {% extends "catalog.html" %}
 {% block content %}
 <h1>Cart Page Here</h1>
+<table summary="Your Shopping Cart" id="shopping_cart">
+<caption>Your Shopping Cart</caption>
+<thead>
+<!-- header info here --> <th scope="col">Product</th> <!-- ...etc... -->
+</thead> <tfoot>
+<!-- footer info here --> </tfoot>
+<tbody>
+<! - - loop through cart items here --> </tbody>
+</table>
 Cart item count: {{ cart_item_count }}
 {% endblock %}

@@ -11,7 +11,6 @@ class CartItem(models.Model):
     class Meta:
         db_table = 'cart_items'
         ordering = ['date_added']
-    #下面的大部分信息都来自于Product
     def total(self):
         return self.quantity * self.product.price
     def name(self):
